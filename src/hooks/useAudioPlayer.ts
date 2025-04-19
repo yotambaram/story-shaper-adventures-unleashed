@@ -23,6 +23,12 @@ export const useAudioPlayer = (audioUrl: string | undefined) => {
       // Create new audio element
       audioRef.current = new Audio(audioUrl);
       
+      // Special handling for demo URL
+      if (audioUrl === "https://example.com/audio.mp3") {
+        setIsAudioLoaded(true);
+        return;
+      }
+      
       // Add event listeners
       audioRef.current.addEventListener("timeupdate", updateProgress);
       audioRef.current.addEventListener("ended", handleAudioEnd);
@@ -78,7 +84,7 @@ export const useAudioPlayer = (audioUrl: string | undefined) => {
   };
 
   const toggleAudio = () => {
-    if (!audioRef.current || !audioUrl) {
+    if (!audioUrl) {
       toast({
         title: "Audio Unavailable",
         description: "No audio file is available for this story.",
@@ -87,35 +93,56 @@ export const useAudioPlayer = (audioUrl: string | undefined) => {
       return;
     }
     
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      // For demo URL, show toast but still try to play
-      if (audioUrl === "https://example.com/audio.mp3") {
+    // Special handling for demo URL
+    if (audioUrl === "https://example.com/audio.mp3") {
+      if (isPlaying) {
+        setIsPlaying(false);
+      } else {
         toast({
           title: "Demo Mode",
           description: "This is a demonstration. In production, real audio would play here.",
         });
+        setIsPlaying(true);
+        // Simulate progress for demo mode
+        let demoProgress = 0;
+        const interval = setInterval(() => {
+          demoProgress += 2;
+          setProgress(demoProgress > 100 ? 100 : demoProgress);
+          if (demoProgress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              setIsPlaying(false);
+              setProgress(0);
+            }, 500);
+          }
+        }, 200);
       }
-      
-      audioRef.current.play().catch(error => {
-        console.error("Audio playback error:", error);
-        toast({
-          title: "Playback Error",
-          description: "Could not play the audio. This might be a demo or the audio file is unavailable.",
-          variant: "destructive"
+      return;
+    }
+    
+    // Handle real audio
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error("Audio playback error:", error);
+          toast({
+            title: "Playback Error",
+            description: "Could not play the audio. The audio file might be unavailable.",
+            variant: "destructive"
+          });
         });
-      });
-      
-      setIsPlaying(true);
+        setIsPlaying(true);
+      }
     }
   };
 
   return {
     isPlaying,
     progress,
-    isAudioLoaded,
+    isAudioLoaded: isAudioLoaded || (audioUrl === "https://example.com/audio.mp3"),
     toggleAudio
   };
 };

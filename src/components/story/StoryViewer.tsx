@@ -23,15 +23,24 @@ export default function StoryViewer() {
     if (id) {
       const foundStory = getStoryById(id);
       setStory(foundStory);
-    }
-  }, [id, getStoryById]);
 
+      if (!foundStory) {
+        toast({
+          title: "Story Not Found",
+          description: "We couldn't find the story you're looking for.",
+          variant: "destructive"
+        });
+      }
+    }
+  }, [id, getStoryById, toast]);
+
+  const isDemoStory = story?.audioUrl === "https://example.com/audio.mp3";
   const { isPlaying, progress, isAudioLoaded, toggleAudio } = useAudioPlayer(story?.audioUrl);
 
   const handleDownloadAudio = () => {
     if (!story?.audioUrl) return;
     
-    if (story.audioUrl === "https://example.com/audio.mp3") {
+    if (isDemoStory) {
       toast({
         title: "Demo Mode",
         description: "This is a demonstration. In production, you would be able to download the actual audio file.",
@@ -77,26 +86,28 @@ export default function StoryViewer() {
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-2xl">{story.title || `Story about ${story.topic}`}</CardTitle>
-            <StoryContent story={story} />
-          </div>
+          <CardTitle className="text-2xl">{story.title || `Story about ${story.topic}`}</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="pt-4 pb-6">
-        <AudioPlayer
-          isPlaying={isPlaying}
-          progress={progress}
-          voiceStyle={story.voiceStyle}
-          onTogglePlay={toggleAudio}
-          isAudioLoaded={isAudioLoaded || story.audioUrl === "https://example.com/audio.mp3"}
-        />
+        <StoryContent story={story} />
+        
+        <div className="mt-6">
+          <AudioPlayer
+            isPlaying={isPlaying}
+            progress={progress}
+            voiceStyle={story.voiceStyle}
+            onTogglePlay={toggleAudio}
+            isAudioLoaded={isAudioLoaded || isDemoStory}
+          />
+        </div>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between gap-3 border-t pt-6">
         <Button 
           variant="outline" 
           onClick={handleDownloadAudio}
           className="flex items-center gap-2"
+          disabled={!isDemoStory && !isAudioLoaded}
         >
           <Download className="h-4 w-4" />
           Download Audio
