@@ -26,7 +26,7 @@ export default function StoryViewer() {
     }
   }, [id, getStoryById]);
 
-  const { isPlaying, progress, toggleAudio } = useAudioPlayer(story?.audioUrl);
+  const { isPlaying, progress, isAudioLoaded, toggleAudio } = useAudioPlayer(story?.audioUrl);
 
   const handleDownloadAudio = () => {
     if (!story?.audioUrl) return;
@@ -89,6 +89,7 @@ export default function StoryViewer() {
           progress={progress}
           voiceStyle={story.voiceStyle}
           onTogglePlay={toggleAudio}
+          isAudioLoaded={isAudioLoaded || story.audioUrl === "https://example.com/audio.mp3"}
         />
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between gap-3 border-t pt-6">

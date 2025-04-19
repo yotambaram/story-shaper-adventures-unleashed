@@ -5,25 +5,61 @@ import { useToast } from "@/hooks/use-toast";
 export const useAudioPlayer = (audioUrl: string | undefined) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     if (audioUrl) {
+      // Clean up previous audio element if it exists
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener("timeupdate", updateProgress);
+        audioRef.current.removeEventListener("ended", handleAudioEnd);
+        audioRef.current.removeEventListener("canplaythrough", handleCanPlayThrough);
+        audioRef.current.removeEventListener("error", handleAudioError);
+      }
+      
+      // Create new audio element
       audioRef.current = new Audio(audioUrl);
       
+      // Add event listeners
       audioRef.current.addEventListener("timeupdate", updateProgress);
       audioRef.current.addEventListener("ended", handleAudioEnd);
+      audioRef.current.addEventListener("canplaythrough", handleCanPlayThrough);
+      audioRef.current.addEventListener("error", handleAudioError);
+
+      // Reset state
+      setIsPlaying(false);
+      setProgress(0);
+      setIsAudioLoaded(false);
       
       return () => {
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current.removeEventListener("timeupdate", updateProgress);
           audioRef.current.removeEventListener("ended", handleAudioEnd);
+          audioRef.current.removeEventListener("canplaythrough", handleCanPlayThrough);
+          audioRef.current.removeEventListener("error", handleAudioError);
         }
       };
     }
   }, [audioUrl]);
+
+  const handleCanPlayThrough = () => {
+    setIsAudioLoaded(true);
+  };
+
+  const handleAudioError = (e: Event) => {
+    console.error("Audio error:", e);
+    setIsPlaying(false);
+    setIsAudioLoaded(false);
+    toast({
+      title: "Audio Error",
+      description: "Could not load the audio file. Please try again later.",
+      variant: "destructive"
+    });
+  };
 
   const updateProgress = () => {
     if (audioRef.current) {
@@ -42,11 +78,20 @@ export const useAudioPlayer = (audioUrl: string | undefined) => {
   };
 
   const toggleAudio = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioUrl) {
+      toast({
+        title: "Audio Unavailable",
+        description: "No audio file is available for this story.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
+      // For demo URL, show toast but still try to play
       if (audioUrl === "https://example.com/audio.mp3") {
         toast({
           title: "Demo Mode",
@@ -62,14 +107,15 @@ export const useAudioPlayer = (audioUrl: string | undefined) => {
           variant: "destructive"
         });
       });
+      
+      setIsPlaying(true);
     }
-    
-    setIsPlaying(!isPlaying);
   };
 
   return {
     isPlaying,
     progress,
+    isAudioLoaded,
     toggleAudio
   };
 };
