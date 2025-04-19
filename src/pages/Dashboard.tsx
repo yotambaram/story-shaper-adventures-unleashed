@@ -12,13 +12,13 @@ export default function Dashboard() {
   const { stories, isLoading } = useStory();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterGoal, setFilterGoal] = useState("");
+  const [filterGoal, setFilterGoal] = useState("all");
   
   // Filter stories based on search and filters
   const filteredStories = stories.filter(story => {
     const matchesTopic = story.topic.toLowerCase().includes(searchTerm.toLowerCase()) || 
                        (story.title || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGoal = filterGoal === "" || story.goal === filterGoal;
+    const matchesGoal = filterGoal === "all" || story.goal === filterGoal;
     
     return matchesTopic && matchesGoal;
   });
@@ -52,7 +52,7 @@ export default function Dashboard() {
               <SelectValue placeholder="Filter by purpose" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All purposes</SelectItem>
+              <SelectItem value="all">All purposes</SelectItem>
               <SelectItem value="bedtime">Bedtime</SelectItem>
               <SelectItem value="learning">Learning</SelectItem>
               <SelectItem value="social">Social Skills</SelectItem>
