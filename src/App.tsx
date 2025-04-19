@@ -43,6 +43,22 @@ const App = () => (
                 } 
               />
               <Route 
+                path="/stories" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/kids" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/create" 
                 element={
                   <ProtectedRoute>
