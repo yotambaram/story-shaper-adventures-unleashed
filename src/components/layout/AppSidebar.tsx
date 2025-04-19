@@ -1,6 +1,6 @@
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { BookOpen, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function AppSidebar() {
@@ -15,15 +15,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/">
                     <Home className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">
-                    <BookOpen className="h-4 w-4" />
-                    <span>Stories</span>
+                    <span>Home</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -34,4 +26,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-

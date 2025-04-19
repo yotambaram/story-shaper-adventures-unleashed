@@ -14,7 +14,6 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import CreateStory from "./pages/CreateStory";
 import StoryPage from "./pages/StoryPage";
-import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,7 +36,6 @@ const App = () => (
                 } 
               />
               <Route path="/login" element={<Login />} />
-              <Route path="/demo" element={<Demo />} />
               
               {/* Protected Routes */}
               <Route 
