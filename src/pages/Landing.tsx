@@ -1,7 +1,8 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import AuthForm from "@/components/auth/AuthForm";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -54,9 +55,16 @@ export default function Landing() {
                 learning, and joy—perfectly crafted for your child's age and interests.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button onClick={handleGetStarted} size="lg" className="text-lg">
-                  Get Started
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="text-lg">
+                      Get Started
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <AuthForm />
+                  </DialogContent>
+                </Dialog>
                 <Button onClick={() => navigate("/demo")} variant="outline" size="lg" className="text-lg">
                   See Demo
                 </Button>
@@ -196,9 +204,16 @@ export default function Landing() {
           <p className="text-lg mb-8 opacity-90">
             Join thousands of parents creating special moments with their children through personalized stories
           </p>
-          <Button onClick={handleGetStarted} size="lg" variant="secondary" className="text-story-purple">
-            Get Started For Free
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="lg" variant="secondary" className="text-story-purple">
+                Get Started For Free
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <AuthForm />
+            </DialogContent>
+          </Dialog>
         </div>
       </section>
 
