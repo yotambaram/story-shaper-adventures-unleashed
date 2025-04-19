@@ -1,5 +1,5 @@
-
 import { createContext, useState, useContext, useEffect, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
 export type User = {
@@ -36,9 +36,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for saved user in localStorage
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
@@ -53,15 +53,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(false);
   }, []);
 
-  // For demo purposes, we're using localStorage
-  // In a real app, this would connect to a backend API
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo, we auto-create a user if they don't exist
       const mockUser = {
         id: `user_${Date.now()}`,
         email,
@@ -91,7 +87,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signup = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const mockUser = {
@@ -127,6 +122,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       title: "Logged out",
       description: "You've been successfully logged out.",
     });
+    navigate("/landing");
   };
 
   return (
