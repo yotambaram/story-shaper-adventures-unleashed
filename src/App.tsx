@@ -10,9 +10,8 @@ import { StoryProvider } from "./context/StoryContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Pages
-import Landing from "./pages/Landing";
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
 import CreateStory from "./pages/CreateStory";
 import StoryPage from "./pages/StoryPage";
 import Demo from "./pages/Demo";
@@ -29,35 +28,18 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/login" element={<Login />} />
               <Route path="/demo" element={<Demo />} />
               
               {/* Protected Routes */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/stories" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/kids" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
               <Route 
                 path="/create" 
                 element={
