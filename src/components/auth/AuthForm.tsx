@@ -25,7 +25,7 @@ export default function AuthForm() {
       } else {
         await signup(email, password);
       }
-      navigate("/dashboard");
+      navigate("/"); // Changed from "/dashboard" to "/" since that's our protected route
     } catch (error) {
       console.error("Authentication error:", error);
     }
