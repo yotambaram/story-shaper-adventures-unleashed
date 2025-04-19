@@ -6,10 +6,11 @@ import StoryCard from "@/components/story/StoryCard";
 import { useStory } from "@/context/StoryContext";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 export default function Dashboard() {
   const { stories, isLoading } = useStory();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGoal, setFilterGoal] = useState("all");
   
@@ -30,9 +31,19 @@ export default function Dashboard() {
             Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}! Browse your personalized stories
           </p>
         </div>
-        <Button asChild size="lg">
-          <Link to="/create">Create New Story</Link>
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button asChild size="lg">
+            <Link to="/create">Create New Story</Link>
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={logout}
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
