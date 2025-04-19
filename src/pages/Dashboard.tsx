@@ -6,7 +6,7 @@ import StoryCard from "@/components/story/StoryCard";
 import { useStory } from "@/context/StoryContext";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, Lollipop } from "lucide-react";
 
 export default function Dashboard() {
   const { stories, isLoading } = useStory();
@@ -23,16 +23,25 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 min-h-screen bg-gradient-to-b from-story-soft-blue via-white to-story-soft-pink">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-1">My Stories</h1>
-          <p className="text-muted-foreground">
-            Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}! Browse your personalized stories
+          <div className="flex items-center gap-3">
+            <Lollipop className="h-8 w-8 text-story-purple animate-bounce" />
+            <h1 className="text-3xl font-bold mb-1 font-display bg-gradient-to-r from-story-purple to-story-dark-purple bg-clip-text text-transparent">
+              My Stories
+            </h1>
+          </div>
+          <p className="text-muted-foreground font-display">
+            Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}! Let's explore your magical stories
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Button asChild size="lg">
+          <Button 
+            asChild 
+            size="lg"
+            className="bg-story-purple hover:bg-story-dark-purple font-display text-white rounded-full transition-transform hover:scale-105"
+          >
             <Link to="/create">Create New Story</Link>
           </Button>
           <Button 
@@ -40,6 +49,7 @@ export default function Dashboard() {
             size="icon" 
             onClick={logout}
             title="Logout"
+            className="rounded-full border-story-purple text-story-purple hover:bg-story-light-purple"
           >
             <LogOut className="h-4 w-4" />
           </Button>
@@ -52,15 +62,15 @@ export default function Dashboard() {
             placeholder="Search by topic or title..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full"
+            className="w-full rounded-full border-story-purple font-display placeholder:text-story-purple/60"
           />
         </div>
         <div className="w-full sm:w-48">
           <Select value={filterGoal} onValueChange={setFilterGoal}>
-            <SelectTrigger>
+            <SelectTrigger className="rounded-full border-story-purple font-display">
               <SelectValue placeholder="Story type" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="font-display">
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="story">Just a Story</SelectItem>
               <SelectItem value="bedtime">Bedtime Story</SelectItem>
@@ -73,8 +83,10 @@ export default function Dashboard() {
       
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin h-8 w-8 border-4 border-story-purple border-t-transparent rounded-full mb-4"></div>
-          <p>Loading your stories...</p>
+          <div className="inline-block animate-[spin_3s_linear_infinite] h-12 w-12 text-story-purple">
+            <Lollipop className="h-full w-full" />
+          </div>
+          <p className="font-display mt-4 text-story-purple">Loading your magical stories...</p>
         </div>
       ) : filteredStories.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -84,52 +96,36 @@ export default function Dashboard() {
         </div>
       ) : stories.length > 0 ? (
         <div className="text-center py-12">
-          <h3 className="text-xl mb-2">No matching stories found</h3>
-          <p className="text-muted-foreground mb-4">Try adjusting your search or filters</p>
+          <h3 className="text-xl mb-2 font-display text-story-purple">No matching stories found</h3>
+          <p className="text-muted-foreground mb-4 font-display">Try adjusting your search or filters</p>
           <Button 
             variant="outline" 
             onClick={() => { 
               setSearchTerm(""); 
               setFilterGoal("all");
             }}
+            className="rounded-full border-story-purple text-story-purple hover:bg-story-light-purple font-display"
           >
             Clear filters
           </Button>
         </div>
       ) : (
         <div className="text-center py-12 max-w-md mx-auto">
-          <div className="bg-story-light-purple rounded-full w-16 h-16 mx-auto flex items-center justify-center mb-4">
-            <BookIcon className="w-8 h-8 text-story-purple" />
+          <div className="bg-story-light-purple rounded-full w-24 h-24 mx-auto flex items-center justify-center mb-4">
+            <Lollipop className="w-12 h-12 text-story-purple animate-bounce" />
           </div>
-          <h3 className="text-xl mb-2">Create your first story!</h3>
-          <p className="text-muted-foreground mb-6">
-            You haven't created any stories yet. Start by creating a personalized story for your child.
+          <h3 className="text-xl mb-2 font-display text-story-purple">Create your first story!</h3>
+          <p className="text-muted-foreground mb-6 font-display">
+            You haven't created any stories yet. Let's create something magical for your child!
           </p>
-          <Button asChild>
+          <Button 
+            asChild
+            className="bg-story-purple hover:bg-story-dark-purple font-display text-white rounded-full transition-transform hover:scale-105"
+          >
             <Link to="/create">Create New Story</Link>
           </Button>
         </div>
       )}
     </div>
-  );
-}
-
-function BookIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-    </svg>
   );
 }
