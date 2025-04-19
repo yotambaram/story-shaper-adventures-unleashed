@@ -1,11 +1,13 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStory } from "@/context/StoryContext";
 import { Story } from "@/context/StoryContext";
 import StoryLoading from "./StoryLoading";
+import { Pause, Play } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function StoryViewer() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +15,9 @@ export default function StoryViewer() {
   const { getStoryById, isLoading } = useStory();
   const [story, setStory] = useState<Story | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (id) {
@@ -20,6 +25,69 @@ export default function StoryViewer() {
       setStory(foundStory);
     }
   }, [id, getStoryById]);
+
+  useEffect(() => {
+    // Create audio element when story loads
+    if (story) {
+      audioRef.current = new Audio(story.audioUrl);
+      
+      // Set up event listeners
+      audioRef.current.addEventListener("timeupdate", updateProgress);
+      audioRef.current.addEventListener("ended", handleAudioEnd);
+      
+      // Clean up on unmount
+      return () => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.removeEventListener("timeupdate", updateProgress);
+          audioRef.current.removeEventListener("ended", handleAudioEnd);
+        }
+      };
+    }
+  }, [story]);
+
+  const updateProgress = () => {
+    if (audioRef.current) {
+      const currentProgress = 
+        (audioRef.current.currentTime / audioRef.current.duration) * 100;
+      setProgress(currentProgress);
+    }
+  };
+
+  const handleAudioEnd = () => {
+    setIsPlaying(false);
+    setProgress(0);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+    }
+  };
+
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      // For demo purposes, show a toast if using the placeholder URL
+      if (story?.audioUrl === "https://example.com/audio.mp3") {
+        toast({
+          title: "Demo Mode",
+          description: "This is a demonstration. In production, real audio would play here.",
+        });
+      }
+      
+      audioRef.current.play().catch(error => {
+        console.error("Audio playback error:", error);
+        toast({
+          title: "Playback Error",
+          description: "Could not play the audio. This might be a demo or the audio file is unavailable.",
+          variant: "destructive"
+        });
+      });
+    }
+    
+    setIsPlaying(!isPlaying);
+  };
 
   const handleDownloadText = () => {
     if (!story) return;
@@ -36,11 +104,6 @@ export default function StoryViewer() {
   const handleDownloadPDF = () => {
     // In a real app, this would generate a PDF
     alert("PDF download would be implemented here with a PDF generation library");
-  };
-
-  const toggleAudio = () => {
-    setIsPlaying(!isPlaying);
-    // In a real app, this would play/pause the audio
   };
 
   const handleBackToDashboard = () => {
@@ -108,7 +171,9 @@ export default function StoryViewer() {
               size="sm"
               variant={isPlaying ? "destructive" : "default"}
               onClick={toggleAudio}
+              className="flex items-center gap-2"
             >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               {isPlaying ? "Pause" : "Play"} Narration
             </Button>
             <div className="text-sm text-muted-foreground">
@@ -117,10 +182,8 @@ export default function StoryViewer() {
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden">
             <div 
-              className={`h-full bg-story-purple transition-all duration-1000 ease-linear ${
-                isPlaying ? "animate-progress" : ""
-              }`}
-              style={{ width: isPlaying ? "100%" : "0%" }}
+              className="h-full bg-story-purple transition-all duration-500"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
