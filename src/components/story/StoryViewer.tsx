@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { useStory } from "@/context/StoryContext";
 import { Story } from "@/context/StoryContext";
 import StoryLoading from "./StoryLoading";
-import { Pause, Play } from "lucide-react";
+import { Pause, Play, Download } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function StoryViewer() {
@@ -27,15 +26,12 @@ export default function StoryViewer() {
   }, [id, getStoryById]);
 
   useEffect(() => {
-    // Create audio element when story loads
     if (story) {
       audioRef.current = new Audio(story.audioUrl);
       
-      // Set up event listeners
       audioRef.current.addEventListener("timeupdate", updateProgress);
       audioRef.current.addEventListener("ended", handleAudioEnd);
       
-      // Clean up on unmount
       return () => {
         if (audioRef.current) {
           audioRef.current.pause();
@@ -68,7 +64,6 @@ export default function StoryViewer() {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      // For demo purposes, show a toast if using the placeholder URL
       if (story?.audioUrl === "https://example.com/audio.mp3") {
         toast({
           title: "Demo Mode",
@@ -89,6 +84,25 @@ export default function StoryViewer() {
     setIsPlaying(!isPlaying);
   };
 
+  const handleDownloadAudio = () => {
+    if (!story?.audioUrl) return;
+    
+    if (story.audioUrl === "https://example.com/audio.mp3") {
+      toast({
+        title: "Demo Mode",
+        description: "This is a demonstration. In production, you would be able to download the actual audio file.",
+      });
+      return;
+    }
+
+    const element = document.createElement("a");
+    element.href = story.audioUrl;
+    element.download = `${story.title || `Story_${story.id}`}.mp3`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   const handleDownloadText = () => {
     if (!story) return;
     
@@ -102,7 +116,6 @@ export default function StoryViewer() {
   };
 
   const handleDownloadPDF = () => {
-    // In a real app, this would generate a PDF
     alert("PDF download would be implemented here with a PDF generation library");
   };
 
@@ -193,14 +206,14 @@ export default function StoryViewer() {
         </div>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between gap-3 border-t pt-6">
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleDownloadText}>
-            Download as Text
-          </Button>
-          <Button variant="outline" onClick={handleDownloadPDF}>
-            Download as PDF
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          onClick={handleDownloadAudio}
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Download Audio
+        </Button>
         <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
       </CardFooter>
     </Card>
