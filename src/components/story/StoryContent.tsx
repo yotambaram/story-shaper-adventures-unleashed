@@ -1,5 +1,7 @@
 
 import { Story } from "@/context/StoryContext";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { MessageSquare } from "lucide-react";
 
 interface StoryContentProps {
   story: Story;
@@ -17,7 +19,7 @@ export function StoryContent({ story }: StoryContentProps) {
 
   return (
     <>
-      <div className="flex gap-2 mt-2">
+      <div className="flex gap-2 mb-6">
         <span className="inline-flex items-center rounded-md bg-story-soft-blue px-2 py-1 text-xs font-medium">
           {getLanguageLabel(story.language)}
         </span>
@@ -31,9 +33,20 @@ export function StoryContent({ story }: StoryContentProps) {
           {story.duration}
         </span>
       </div>
-      <div className="story-content font-sans whitespace-pre-wrap bg-white rounded-lg p-6 border">
-        {story.storyText}
-      </div>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <button className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-sm text-muted-foreground">Read Story Text</span>
+          </button>
+        </DialogTrigger>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <div className="story-content font-sans whitespace-pre-wrap">
+            {story.storyText}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
