@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ export default function StoryForm() {
   
   const [formData, setFormData] = useState({
     topic: "",
-    goal: "bedtime", // Default values
+    goal: "story", // Default to general story
     age: 5,
     duration: "1-2 minutes",
     voiceStyle: "Calm Mom",
@@ -71,20 +70,19 @@ export default function StoryForm() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="goal">What's the purpose of this story?</Label>
+              <Label htmlFor="goal">What type of story would you like?</Label>
               <Select
                 value={formData.goal}
                 onValueChange={(value) => handleSelectChange("goal", value)}
               >
                 <SelectTrigger id="goal" className="w-full">
-                  <SelectValue placeholder="Select purpose" />
+                  <SelectValue placeholder="Select story type" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="story">Just a Story</SelectItem>
                   <SelectItem value="bedtime">Bedtime Story</SelectItem>
-                  <SelectItem value="learning">Educational</SelectItem>
-                  <SelectItem value="social">Social Skills</SelectItem>
-                  <SelectItem value="calming">Calming/Relaxation</SelectItem>
-                  <SelectItem value="fun">Just for Fun</SelectItem>
+                  <SelectItem value="broadcast">Broadcast Story</SelectItem>
+                  <SelectItem value="learning">Learning Content</SelectItem>
                 </SelectContent>
               </Select>
             </div>

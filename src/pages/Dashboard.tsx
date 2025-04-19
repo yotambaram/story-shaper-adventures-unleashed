@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,15 +48,14 @@ export default function Dashboard() {
         <div className="w-full sm:w-48">
           <Select value={filterGoal} onValueChange={setFilterGoal}>
             <SelectTrigger>
-              <SelectValue placeholder="Filter by purpose" />
+              <SelectValue placeholder="Story type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All purposes</SelectItem>
-              <SelectItem value="bedtime">Bedtime</SelectItem>
-              <SelectItem value="learning">Learning</SelectItem>
-              <SelectItem value="social">Social Skills</SelectItem>
-              <SelectItem value="calming">Calming</SelectItem>
-              <SelectItem value="fun">Fun</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="story">Just a Story</SelectItem>
+              <SelectItem value="bedtime">Bedtime Story</SelectItem>
+              <SelectItem value="broadcast">Broadcast Story</SelectItem>
+              <SelectItem value="learning">Learning Content</SelectItem>
             </SelectContent>
           </Select>
         </div>
