@@ -15,17 +15,18 @@ import Login from "./pages/Login";
 import CreateStory from "./pages/CreateStory";
 import StoryPage from "./pages/StoryPage";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <StoryProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <StoryProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <Routes>
               <Route 
                 path="/" 
@@ -36,6 +37,7 @@ const App = () => (
                 } 
               />
               <Route path="/login" element={<Login />} />
+              <Route path="/landing" element={<Landing />} />
               
               {/* Protected Routes */}
               <Route 
@@ -58,11 +60,11 @@ const App = () => (
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </StoryProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+          </TooltipProvider>
+        </StoryProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;
