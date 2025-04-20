@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  base: "/story-shaper-adventures-unleashed/",
+  // Remove the base URL to use the root path
   plugins: [
     react(),
     mode === 'development' &&
