@@ -1,67 +1,67 @@
 
 const voiceStyleMapping: Record<string, string> = {
-  "Calm Mom": "nova",
-  "Excited Dad": "echo",
-  "Warm Teacher": "alloy",
-  "Grandma": "shimmer",
-  "Professional Narrator": "onyx"
+  "Calm Mom": "EXAVITQu4vr4xnSDxMaL", // Sarah
+  "Excited Dad": "TX3LPaxmHKxFdv7VOQHJ", // Liam
+  "Warm Teacher": "pFZP5JQG7iQjIQuC4Bku", // Lily
+  "Grandma": "XB0fDUnXU5powFXDhCwa", // Charlotte
+  "Professional Narrator": "onwK4e9ZLuTAKqWW03F9" // Daniel
 };
 
 export async function generateAudio(text: string, voiceStyle: string): Promise<string | null> {
   // Check for production deployment
   const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
   
   if (!apiKey) {
-    console.warn("OpenAI API key not configured");
+    console.warn("ElevenLabs API key not configured");
     
     if (isProduction) {
       console.log("Production environment detected without API key");
-      throw new Error("API key not configured. Please set up your VITE_OPENAI_API_KEY in environment variables.");
+      throw new Error("API key not configured. Please set up your VITE_ELEVENLABS_API_KEY in environment variables.");
     } else {
       console.log("Using demo mode with mock audio URL for local development");
-      // Return demo URL for testing without API key in development only
       return "https://example.com/audio.mp3";
     }
   }
 
-  // Limit text length to avoid hitting API limits
-  const limitedText = text.length > 4096 ? text.substring(0, 4096) : text;
+  // Limit text length to avoid hitting API limits (ElevenLabs typically has a 2500 character limit for free tier)
+  const limitedText = text.length > 2500 ? text.substring(0, 2500) : text;
   
   // Get voice from mapping or use default
-  const voice = voiceStyleMapping[voiceStyle] || voiceStyleMapping["Professional Narrator"];
+  const voiceId = voiceStyleMapping[voiceStyle] || voiceStyleMapping["Professional Narrator"];
   
   try {
     console.log(`Generating audio with voice: ${voiceStyle}`);
     console.log(`Text length: ${limitedText.length} characters`);
-    console.log(`Using voice ID: ${voice}`);
+    console.log(`Using voice ID: ${voiceId}`);
     
-    const response = await fetch('https://api.openai.com/v1/audio/speech', {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'audio/mpeg',
+        'xi-api-key': apiKey,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'tts-1',
-        input: limitedText,
-        voice: voice,
-        response_format: 'mp3'
+        text: limitedText,
+        model_id: "eleven_monolingual_v1",
+        voice_settings: {
+          stability: 0.75,
+          similarity_boost: 0.75
+        }
       })
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("OpenAI API error:", response.status, errorData);
+      console.error("ElevenLabs API error:", response.status, errorData);
       
-      // Provide more detailed error messages based on status codes
       if (response.status === 401) {
-        throw new Error("Authentication failed: Please check your API key");
+        throw new Error("Authentication failed: Please check your ElevenLabs API key");
       } else if (response.status === 429) {
-        console.error("Rate limit details:", errorData);
-        throw new Error("Rate limit exceeded: Your OpenAI account has reached its usage limit. Please check your OpenAI account billing and limits.");
+        throw new Error("Rate limit exceeded: You've reached your ElevenLabs free tier limit. Please check your ElevenLabs account.");
       } else if (response.status >= 500) {
-        throw new Error("OpenAI server error: Please try again later");
+        throw new Error("ElevenLabs server error: Please try again later");
       } else {
         throw new Error(`Failed to generate audio (${response.status}): ${errorData}`);
       }
@@ -72,7 +72,6 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     return URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error("Error generating audio:", error);
-    // Re-throw the error so it can be handled by the calling component
     throw error;
   }
 }
