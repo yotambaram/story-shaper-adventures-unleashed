@@ -8,13 +8,21 @@ const voiceStyleMapping: Record<string, string> = {
 };
 
 export async function generateAudio(text: string, voiceStyle: string): Promise<string | null> {
+  // Check for production deployment
+  const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   
   if (!apiKey) {
-    console.error("OpenAI API key not configured");
-    console.log("Using demo mode with mock audio URL");
-    // Return demo URL for testing without API key
-    return "https://example.com/audio.mp3";
+    console.warn("OpenAI API key not configured");
+    
+    if (isProduction) {
+      console.log("Production environment detected without API key");
+      return null; // Return null in production when no key is available
+    } else {
+      console.log("Using demo mode with mock audio URL for local development");
+      // Return demo URL for testing without API key in development only
+      return "https://example.com/audio.mp3";
+    }
   }
 
   // Limit text length to avoid hitting API limits
