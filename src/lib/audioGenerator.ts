@@ -8,20 +8,11 @@ const voiceStyleMapping: Record<string, string> = {
 };
 
 export async function generateAudio(text: string, voiceStyle: string): Promise<string | null> {
-  // Check for production deployment
-  const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
   const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
   
   if (!apiKey) {
     console.warn("ElevenLabs API key not configured");
-    
-    if (isProduction) {
-      console.log("Production environment detected without API key");
-      throw new Error("API key not configured. Please set up your VITE_ELEVENLABS_API_KEY in environment variables.");
-    } else {
-      console.log("Using demo mode with mock audio URL for local development");
-      return "https://example.com/audio.mp3";
-    }
+    throw new Error("API key not configured. Please set up your VITE_ELEVENLABS_API_KEY in environment variables.");
   }
 
   // Limit text length to avoid hitting API limits (ElevenLabs typically has a 2500 character limit for free tier)
@@ -59,7 +50,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
       if (response.status === 401) {
         throw new Error("Authentication failed: Please check your ElevenLabs API key");
       } else if (response.status === 429) {
-        throw new Error("Rate limit exceeded: You've reached your ElevenLabs free tier limit. Please check your ElevenLabs account.");
+        throw new Error("Rate limit exceeded: You've reached your ElevenLabs free tier limit");
       } else if (response.status >= 500) {
         throw new Error("ElevenLabs server error: Please try again later");
       } else {
