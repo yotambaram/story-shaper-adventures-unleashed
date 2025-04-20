@@ -22,7 +22,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
   const voiceId = voiceStyleMapping[voiceStyle] || voiceStyleMapping["Professional Narrator"];
   
   try {
-    console.log(`Generating audio with voice: ${voiceStyle}`);
+    console.log(`Generating audio with ElevenLabs voice: ${voiceStyle}`);
     console.log(`Text length: ${limitedText.length} characters`);
     console.log(`Using voice ID: ${voiceId}`);
     
@@ -62,7 +62,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     const audioBlob = await response.blob();
     return URL.createObjectURL(audioBlob);
   } catch (error) {
-    console.error("Error generating audio:", error);
+    console.error("Error generating audio with ElevenLabs:", error);
     throw error;
   }
 }

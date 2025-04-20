@@ -16,7 +16,7 @@ import { generateAudio } from "@/lib/audioGenerator";
 export default function StoryViewer() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getStoryById, isLoading } = useStory();
+  const { getStoryById, isLoading, stories, setStories } = useStory() as any; // Added setStories
   const [story, setStory] = useState<Story | undefined>();
   const { toast } = useToast();
   const [generatingAudio, setGeneratingAudio] = useState(false);
@@ -44,15 +44,29 @@ export default function StoryViewer() {
     
     setGeneratingAudio(true);
     try {
+      // Use ElevenLabs API to generate audio
       const audioUrl = await generateAudio(story.storyText, story.voiceStyle);
+      
       // Update the story with the new audio URL
       if (audioUrl) {
-        // Here we would typically update the story in the database
-        // For now, we just update it in the local state
-        setStory({...story, audioUrl});
+        // Create updated story with audio URL
+        const updatedStory = {...story, audioUrl};
+        
+        // Update local state
+        setStory(updatedStory);
+        
+        // Update stories in context
+        if (setStories) {
+          setStories((prevStories: Story[]) => 
+            prevStories.map((s: Story) => 
+              s.id === story.id ? updatedStory : s
+            )
+          );
+        }
+        
         toast({
           title: "Audio Generated",
-          description: "Your story audio has been successfully generated.",
+          description: "Your story audio has been successfully generated with ElevenLabs.",
         });
       }
     } catch (error) {
@@ -62,9 +76,9 @@ export default function StoryViewer() {
       // Check for specific error messages
       if (error instanceof Error) {
         if (error.message.includes("API key")) {
-          errorMessage = "API key not configured. Please check your environment settings.";
+          errorMessage = "ElevenLabs API key not configured. Please check your environment settings.";
         } else if (error.message.includes("Rate limit")) {
-          errorMessage = "OpenAI API rate limit exceeded. You may have reached your usage quota or free tier limit. Please check your OpenAI account.";
+          errorMessage = "ElevenLabs API rate limit exceeded. You may have reached your usage quota or free tier limit.";
         }
       }
       

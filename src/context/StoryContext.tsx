@@ -1,3 +1,4 @@
+
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "./AuthContext";
@@ -109,6 +110,7 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
 
     setIsGenerating(true);
     try {
+      // Generate story content using OpenAI API
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -142,7 +144,7 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
         userId: user.id,
         ...storyParams,
         storyText: generatedStoryText,
-        audioUrl: "", // We'll implement audio generation separately
+        audioUrl: "", // Audio will be generated separately with ElevenLabs
         createdAt: new Date(),
         title: `Story about ${storyParams.topic}`
       };
@@ -192,7 +194,7 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
       userId: userId,
       ...storyParams,
       storyText: generatedStoryText,
-      audioUrl: "", // Empty string since audio hasn't been generated yet
+      audioUrl: "", // Empty string since audio will be generated with ElevenLabs later
       createdAt: new Date(),
       title: `Story about ${storyParams.topic}`
     };
