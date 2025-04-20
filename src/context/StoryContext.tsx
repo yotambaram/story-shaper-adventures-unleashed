@@ -87,34 +87,51 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
       throw new Error("User not authenticated");
     }
 
+    if (!import.meta.env.VITE_OPENAI_API_KEY) {
+      toast({
+        title: "Configuration Error",
+        description: "OpenAI API key is not configured. Please add it to your environment variables.",
+        variant: "destructive"
+      });
+      throw new Error("OpenAI API key not configured");
+    }
+
     setIsGenerating(true);
     try {
-      // For now, let's create a mock story since we don't have the OpenAI API key set up properly
-      // In a production environment, you would need to set up the OPENAI_API_KEY in your Vite environment variables
-      // or use a secure backend service to make this API call
-      
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate a sample story text based on the parameters
-      let generatedStoryText = `Once upon a time, there was a story about ${storyParams.topic}. `;
-      
-      if (storyParams.goal === "bedtime") {
-        generatedStoryText += "The stars twinkled softly in the night sky as the characters drifted into a peaceful sleep. ";
-      } else if (storyParams.goal === "learning") {
-        generatedStoryText += "The characters learned many interesting facts and grew wiser with each new discovery. ";
-      } else {
-        generatedStoryText += "The characters had an exciting adventure full of twists and turns. ";
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: `You are a creative storyteller for children. Create a ${storyParams.duration} story about ${storyParams.topic} suitable for a ${storyParams.age} year old child. The story should be ${storyParams.goal === "bedtime" ? "calming and suitable for bedtime" : storyParams.goal === "learning" ? "educational and engaging" : "entertaining and engaging"}. Write in ${storyParams.language === "en" ? "English" : storyParams.language === "he" ? "Hebrew" : "Spanish"}.`
+            },
+            {
+              role: "user",
+              content: `Generate a story about ${storyParams.topic}`
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate story");
       }
-      
-      generatedStoryText += `This story was created for a ${storyParams.age} year old child and is meant to last about ${storyParams.duration}.`;
+
+      const data = await response.json();
+      const generatedStoryText = data.choices[0].message.content;
 
       const newStory: Story = {
         id: `story_${Date.now()}`,
         userId: user.id,
         ...storyParams,
         storyText: generatedStoryText,
-        audioUrl: "https://example.com/audio.mp3", // Mock audio URL
+        audioUrl: "", // We'll implement audio generation later
         createdAt: new Date(),
         title: `Story about ${storyParams.topic}`
       };
