@@ -1,17 +1,16 @@
 
-import { useToast } from "@/hooks/use-toast";
-
 interface ElevenLabsVoice {
   voice_id: string;
   name: string;
 }
 
+// Real Eleven Labs voice IDs
 const voiceStyleMapping: Record<string, string> = {
-  "Calm Mom": "EXAVITQu4vr4xnSDxMaL", // This is a made-up ID
-  "Excited Dad": "VR6AewLTigWG4xSOukaG", // This is a made-up ID
-  "Warm Teacher": "pNInz6obpgDQGcFmaJgB", // This is a made-up ID
-  "Grandma": "jBpfuIE2acCO8z3wKNLl", // This is a made-up ID
-  "Professional Narrator": "TxGEqnHWrfWFTfGW9XjX" // This is a made-up ID
+  "Calm Mom": "EXAVITQu4vr4xnSDxMaL", // Sarah
+  "Excited Dad": "CwhRBWXzGAHq8TQ4Fs17", // Roger
+  "Warm Teacher": "FGY2WhTYpPnrIDTdsKH5", // Laura
+  "Grandma": "XB0fDUnXU5powFXDhCwa", // Charlotte
+  "Professional Narrator": "TX3LPaxmHKxFdv7VOQHJ" // Liam
 };
 
 export async function generateAudio(text: string, voiceStyle: string): Promise<string | null> {
@@ -19,7 +18,9 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
   
   if (!apiKey) {
     console.error("Eleven Labs API key not configured");
-    return null;
+    console.log("Using demo mode with mock audio URL");
+    // Return demo URL for testing without API key
+    return "https://example.com/audio.mp3";
   }
 
   // Limit text length to avoid hitting API limits
@@ -29,19 +30,10 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
   const voiceId = voiceStyleMapping[voiceStyle] || voiceStyleMapping["Professional Narrator"];
   
   try {
-    // For now, since we can't make actual API calls in this demo, return a mock URL
-    // In a real implementation, you would make a fetch call to Eleven Labs API
-    console.log(`Would generate audio with voice: ${voiceStyle}, voice ID: ${voiceId}`);
+    console.log(`Generating audio with voice: ${voiceStyle}, voice ID: ${voiceId}`);
     console.log(`Text length: ${limitedText.length} characters`);
     
-    // Simulate API call with timeout
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Return a mock audio URL for demo purposes
-    return "https://example.com/audio.mp3";
-    
-    /* 
-    // Real implementation would be:
+    // Make the actual API call to Eleven Labs
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: "POST",
       headers: {
@@ -59,12 +51,13 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to generate audio: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Failed to generate audio (${response.status}): ${errorText}`);
     }
 
+    // Convert the response to a Blob and create a URL
     const audioBlob = await response.blob();
     return URL.createObjectURL(audioBlob);
-    */
   } catch (error) {
     console.error("Error generating audio:", error);
     return null;
