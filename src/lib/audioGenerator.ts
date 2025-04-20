@@ -11,6 +11,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
   // Try to get the API key from different environment variable formats
   const apiKey = 
     import.meta.env.VITE_ELEVENLABS_API_KEY || 
+    import.meta.env.VITE_ELEVENLABS_APLKEY ||  // Check for typo variant
     import.meta.env.ELEVENLABS_API_KEY || 
     import.meta.env.REACT_APP_ELEVENLABS_API_KEY;
   

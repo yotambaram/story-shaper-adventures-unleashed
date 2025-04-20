@@ -38,6 +38,7 @@ jobs:
       - name: Build project
         env:
           VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
+          VITE_ELEVENLABS_API_KEY: ${{ secrets.VITE_ELEVENLABS_APLKEY }}  # Use the environment variable name you've set in GitHub
         run: npm run build
 
       - name: Upload artifact
@@ -56,4 +57,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
