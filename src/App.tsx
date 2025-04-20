@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { StoryProvider } from "./context/StoryContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -20,7 +20,7 @@ import Landing from "./pages/Landing";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <BrowserRouter>
+  <HashRouter>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <StoryProvider>
@@ -64,7 +64,7 @@ const App = () => (
         </StoryProvider>
       </AuthProvider>
     </QueryClientProvider>
-  </BrowserRouter>
+  </HashRouter>
 );
 
 export default App;
