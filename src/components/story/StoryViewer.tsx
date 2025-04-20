@@ -12,14 +12,16 @@ import { AudioPlayer } from "./AudioPlayer";
 import { StoryContent } from "./StoryContent";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { generateAudio } from "@/lib/audioGenerator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function StoryViewer() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getStoryById, isLoading, stories, setStories } = useStory() as any; // Added setStories
+  const { getStoryById, isLoading, stories, setStories } = useStory() as any;
   const [story, setStory] = useState<Story | undefined>();
   const { toast } = useToast();
   const [generatingAudio, setGeneratingAudio] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -43,6 +45,8 @@ export default function StoryViewer() {
     if (!story) return;
     
     setGeneratingAudio(true);
+    setApiKeyError(null);
+    
     try {
       // Use ElevenLabs API to generate audio
       const audioUrl = await generateAudio(story.storyText, story.voiceStyle);
@@ -76,7 +80,8 @@ export default function StoryViewer() {
       // Check for specific error messages
       if (error instanceof Error) {
         if (error.message.includes("API key")) {
-          errorMessage = "ElevenLabs API key not configured. Please check your environment settings.";
+          errorMessage = "ElevenLabs API key not configured or invalid. Please check your environment settings.";
+          setApiKeyError("API key missing or invalid");
         } else if (error.message.includes("Rate limit")) {
           errorMessage = "ElevenLabs API rate limit exceeded. You may have reached your usage quota or free tier limit.";
         }
@@ -138,50 +143,70 @@ export default function StoryViewer() {
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-2xl">{story.title || `Story about ${story.topic}`}</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-4 pb-6">
-        <StoryContent story={story} />
-        
-        {story.audioUrl ? (
-          <div className="mt-6">
-            <AudioPlayer
-              isPlaying={isPlaying}
-              progress={progress}
-              voiceStyle={story.voiceStyle}
-              onTogglePlay={toggleAudio}
-              isAudioLoaded={isAudioLoaded || isDemoStory}
-            />
+    <TooltipProvider>
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-2xl">{story.title || `Story about ${story.topic}`}</CardTitle>
           </div>
-        ) : (
-          <div className="mt-6 flex justify-center">
-            <Button 
-              onClick={handleGenerateAudio} 
-              disabled={generatingAudio}
-              className="flex items-center gap-2"
-            >
-              <Volume2 className="h-4 w-4" />
-              {generatingAudio ? "Generating Audio..." : "Generate Audio Narration"}
-            </Button>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex flex-wrap justify-between gap-3 border-t pt-6">
-        <Button 
-          variant="outline" 
-          onClick={handleDownloadAudio}
-          className="flex items-center gap-2"
-          disabled={!story.audioUrl || (!isDemoStory && !isAudioLoaded)}
-        >
-          <Download className="h-4 w-4" />
-          Download Audio
-        </Button>
-        <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
-      </CardFooter>
-    </Card>
+        </CardHeader>
+        <CardContent className="pt-4 pb-6">
+          <StoryContent story={story} />
+          
+          {story.audioUrl ? (
+            <div className="mt-6">
+              <AudioPlayer
+                isPlaying={isPlaying}
+                progress={progress}
+                voiceStyle={story.voiceStyle}
+                onTogglePlay={toggleAudio}
+                isAudioLoaded={isAudioLoaded || isDemoStory}
+              />
+            </div>
+          ) : (
+            <div className="mt-6 flex justify-center">
+              {apiKeyError ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={handleGenerateAudio} 
+                      disabled={generatingAudio}
+                      className="flex items-center gap-2"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                      {generatingAudio ? "Generating Audio..." : "API Key Error - Click for Help"}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>ElevenLabs API key error. Make sure your .env.local file contains VITE_ELEVENLABS_API_KEY=your_key_here</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button 
+                  onClick={handleGenerateAudio} 
+                  disabled={generatingAudio}
+                  className="flex items-center gap-2"
+                >
+                  <Volume2 className="h-4 w-4" />
+                  {generatingAudio ? "Generating Audio..." : "Generate Audio Narration"}
+                </Button>
+              )}
+            </div>
+          )}
+        </CardContent>
+        <CardFooter className="flex flex-wrap justify-between gap-3 border-t pt-6">
+          <Button 
+            variant="outline" 
+            onClick={handleDownloadAudio}
+            className="flex items-center gap-2"
+            disabled={!story.audioUrl || (!isDemoStory && !isAudioLoaded)}
+          >
+            <Download className="h-4 w-4" />
+            Download Audio
+          </Button>
+          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
+        </CardFooter>
+      </Card>
+    </TooltipProvider>
   );
 }

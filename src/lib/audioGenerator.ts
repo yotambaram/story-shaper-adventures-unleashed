@@ -10,9 +10,11 @@ const voiceStyleMapping: Record<string, string> = {
 export async function generateAudio(text: string, voiceStyle: string): Promise<string | null> {
   const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
   
+  console.log("Checking ElevenLabs API key:", apiKey ? "API key found" : "API key missing");
+  
   if (!apiKey) {
     console.warn("ElevenLabs API key not configured");
-    throw new Error("API key not configured. Please set up your VITE_ELEVENLABS_API_KEY in environment variables.");
+    throw new Error("API key not configured. Please set up your VITE_ELEVENLABS_API_KEY in .env.local file.");
   }
 
   // Limit text length to avoid hitting API limits (ElevenLabs typically has a 2500 character limit for free tier)
@@ -48,7 +50,8 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
       console.error("ElevenLabs API error:", response.status, errorData);
       
       if (response.status === 401) {
-        throw new Error("Authentication failed: Please check your ElevenLabs API key");
+        console.error("Authentication error details:", errorData);
+        throw new Error("Authentication failed: Please check your ElevenLabs API key is valid");
       } else if (response.status === 429) {
         throw new Error("Rate limit exceeded: You've reached your ElevenLabs free tier limit");
       } else if (response.status >= 500) {
