@@ -1,10 +1,19 @@
 
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import StoryForm from "@/components/story/StoryForm";
 import StoryLoading from "@/components/story/StoryLoading";
 import { useStory } from "@/context/StoryContext";
 
 export default function CreateStory() {
-  const { isGenerating } = useStory();
+  const { isGenerating, currentStory } = useStory();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (currentStory && !isGenerating) {
+      navigate(`/story/${currentStory.id}`);
+    }
+  }, [currentStory, isGenerating, navigate]);
   
   return (
     <div className="min-h-screen py-16 px-4">
