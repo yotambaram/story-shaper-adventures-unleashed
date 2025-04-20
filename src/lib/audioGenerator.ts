@@ -8,12 +8,18 @@ const voiceStyleMapping: Record<string, string> = {
 };
 
 export async function generateAudio(text: string, voiceStyle: string): Promise<string | null> {
-  const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
+  // Try to get the API key from different environment variable formats
+  const apiKey = 
+    import.meta.env.VITE_ELEVENLABS_API_KEY || 
+    import.meta.env.ELEVENLABS_API_KEY || 
+    import.meta.env.REACT_APP_ELEVENLABS_API_KEY;
   
-  console.log("Checking ElevenLabs API key:", apiKey ? "API key found" : "API key missing");
+  console.log("Generating audio with text length:", text.length);
+  console.log("Selected voice style:", voiceStyle);
+  console.log("API key status:", apiKey ? "API key found" : "API key missing");
   
   if (!apiKey) {
-    console.warn("ElevenLabs API key not configured");
+    console.error("ElevenLabs API key not configured");
     throw new Error("API key not configured. Please set up your VITE_ELEVENLABS_API_KEY in .env.local file.");
   }
 
@@ -47,10 +53,10 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("ElevenLabs API error:", response.status, errorData);
+      console.error("ElevenLabs API error response:", response.status);
+      console.error("Error details:", errorData);
       
       if (response.status === 401) {
-        console.error("Authentication error details:", errorData);
         throw new Error("Authentication failed: Please check your ElevenLabs API key is valid");
       } else if (response.status === 429) {
         throw new Error("Rate limit exceeded: You've reached your ElevenLabs free tier limit");
@@ -63,7 +69,9 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
 
     // Convert the response to a Blob and create a URL
     const audioBlob = await response.blob();
-    return URL.createObjectURL(audioBlob);
+    const audioUrl = URL.createObjectURL(audioBlob);
+    console.log("Audio successfully generated, URL created");
+    return audioUrl;
   } catch (error) {
     console.error("Error generating audio with ElevenLabs:", error);
     throw error;
