@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  // Remove the base URL to use the root path
+  base: "./",
   plugins: [
     react(),
     mode === 'development' &&
