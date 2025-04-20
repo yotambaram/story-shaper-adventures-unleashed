@@ -17,10 +17,13 @@ import StoryPage from "./pages/StoryPage";
 import NotFound from "./pages/NotFound";
 import Landing from "./pages/Landing";
 
+// Get the base URL from Vite configuration
+const baseUrl = import.meta.env.BASE_URL || '/';
+
 const queryClient = new QueryClient();
 
 const App = () => (
-  <BrowserRouter>
+  <BrowserRouter basename={baseUrl}>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <StoryProvider>
