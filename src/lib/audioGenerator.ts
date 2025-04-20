@@ -30,9 +30,20 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
   const voiceId = voiceStyleMapping[voiceStyle] || voiceStyleMapping["Professional Narrator"];
   
   try {
-    console.log(`Generating audio with ElevenLabs voice: ${voiceStyle}`);
-    console.log(`Text length: ${limitedText.length} characters`);
+    console.log(`Starting API request to ElevenLabs...`);
     console.log(`Using voice ID: ${voiceId}`);
+    console.log(`Text length: ${limitedText.length} characters`);
+    
+    const requestBody = JSON.stringify({
+      text: limitedText,
+      model_id: "eleven_monolingual_v1",
+      voice_settings: {
+        stability: 0.75,
+        similarity_boost: 0.75
+      }
+    });
+    
+    console.log("Request payload prepared:", requestBody.substring(0, 100) + "...");
     
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: 'POST',
@@ -41,16 +52,11 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
         'xi-api-key': apiKey,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        text: limitedText,
-        model_id: "eleven_monolingual_v1",
-        voice_settings: {
-          stability: 0.75,
-          similarity_boost: 0.75
-        }
-      })
+      body: requestBody
     });
 
+    console.log("ElevenLabs API response status:", response.status);
+    
     if (!response.ok) {
       const errorData = await response.text();
       console.error("ElevenLabs API error response:", response.status);
@@ -70,7 +76,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     // Convert the response to a Blob and create a URL
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
-    console.log("Audio successfully generated, URL created");
+    console.log("Audio successfully generated, URL created:", audioUrl.substring(0, 30));
     return audioUrl;
   } catch (error) {
     console.error("Error generating audio with ElevenLabs:", error);

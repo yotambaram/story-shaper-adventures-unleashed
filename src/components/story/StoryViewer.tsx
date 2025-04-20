@@ -27,7 +27,9 @@ export default function StoryViewer() {
 
   useEffect(() => {
     if (id) {
+      console.log("Fetching story with ID:", id);
       const foundStory = getStoryById(id);
+      console.log("Found story:", foundStory ? "Yes" : "No");
       setStory(foundStory);
 
       if (!foundStory) {
@@ -44,7 +46,10 @@ export default function StoryViewer() {
   const { isPlaying, progress, isAudioLoaded, toggleAudio } = useAudioPlayer(story?.audioUrl);
 
   const handleGenerateAudio = async () => {
-    if (!story) return;
+    if (!story) {
+      console.error("Cannot generate audio - no story available");
+      return;
+    }
     
     setGeneratingAudio(true);
     setApiKeyError(null);
@@ -52,6 +57,9 @@ export default function StoryViewer() {
     
     try {
       console.log("Starting audio generation process for story:", story.title);
+      console.log("Story text length:", story.storyText?.length || 0);
+      console.log("Selected voice style:", story.voiceStyle);
+      
       // Use ElevenLabs API to generate audio
       const audioUrl = await generateAudio(story.storyText, story.voiceStyle);
       
@@ -67,6 +75,7 @@ export default function StoryViewer() {
         
         // Update stories in context
         if (setStories) {
+          console.log("Updating story in context");
           setStories((prevStories: Story[]) => 
             prevStories.map((s: Story) => 
               s.id === story.id ? updatedStory : s
