@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import AuthForm from "@/components/auth/AuthForm";
 
 export const CTASection = () => {
@@ -21,6 +21,7 @@ export const CTASection = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
+            <DialogTitle className="sr-only">Authentication</DialogTitle>
             <AuthForm />
           </DialogContent>
         </Dialog>
