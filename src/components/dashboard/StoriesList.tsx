@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import StoryCard from "@/components/story/StoryCard";
-import { Story } from "@/context/StoryContext";
+import { Story } from "@/types/story";
 import { Lollipop } from "lucide-react";
 import { Link } from "react-router-dom";
 

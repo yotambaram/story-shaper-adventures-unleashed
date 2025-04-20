@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStory } from "@/context/StoryContext";
-import { Story } from "@/context/StoryContext";
+import { Story } from "@/types/story";
 import StoryLoading from "./StoryLoading";
 import { Download, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";

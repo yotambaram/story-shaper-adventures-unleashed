@@ -1,5 +1,5 @@
 
-import { Story } from "@/context/StoryContext";
+import { Story } from "@/types/story";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { MessageSquare } from "lucide-react";
 
