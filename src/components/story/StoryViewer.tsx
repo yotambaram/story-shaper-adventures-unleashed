@@ -6,11 +6,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { useStory } from "@/context/StoryContext";
 import { Story } from "@/context/StoryContext";
 import StoryLoading from "./StoryLoading";
-import { Download } from "lucide-react";
+import { Download, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AudioPlayer } from "./AudioPlayer";
 import { StoryContent } from "./StoryContent";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { generateAudio } from "@/lib/audioGenerator";
 
 export default function StoryViewer() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,7 @@ export default function StoryViewer() {
   const { getStoryById, isLoading } = useStory();
   const [story, setStory] = useState<Story | undefined>();
   const { toast } = useToast();
+  const [generatingAudio, setGeneratingAudio] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -37,8 +39,36 @@ export default function StoryViewer() {
   const isDemoStory = story?.audioUrl === "https://example.com/audio.mp3";
   const { isPlaying, progress, isAudioLoaded, toggleAudio } = useAudioPlayer(story?.audioUrl);
 
+  const handleGenerateAudio = async () => {
+    if (!story) return;
+    
+    setGeneratingAudio(true);
+    try {
+      const audioUrl = await generateAudio(story.storyText, story.voiceStyle);
+      // Update the story with the new audio URL
+      if (audioUrl) {
+        // Here we would typically update the story in the database
+        // For now, we just update it in the local state
+        setStory({...story, audioUrl});
+        toast({
+          title: "Audio Generated",
+          description: "Your story audio has been successfully generated.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to generate audio:", error);
+      toast({
+        title: "Audio Generation Failed",
+        description: "We couldn't generate audio for this story. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingAudio(false);
+    }
+  };
+
   const handleDownloadAudio = () => {
-    if (!story?.audioUrl) return;
+    if (!story?.audioUrl || story.audioUrl === "") return;
     
     if (isDemoStory) {
       toast({
@@ -92,22 +122,35 @@ export default function StoryViewer() {
       <CardContent className="pt-4 pb-6">
         <StoryContent story={story} />
         
-        <div className="mt-6">
-          <AudioPlayer
-            isPlaying={isPlaying}
-            progress={progress}
-            voiceStyle={story.voiceStyle}
-            onTogglePlay={toggleAudio}
-            isAudioLoaded={isAudioLoaded || isDemoStory}
-          />
-        </div>
+        {story.audioUrl ? (
+          <div className="mt-6">
+            <AudioPlayer
+              isPlaying={isPlaying}
+              progress={progress}
+              voiceStyle={story.voiceStyle}
+              onTogglePlay={toggleAudio}
+              isAudioLoaded={isAudioLoaded || isDemoStory}
+            />
+          </div>
+        ) : (
+          <div className="mt-6 flex justify-center">
+            <Button 
+              onClick={handleGenerateAudio} 
+              disabled={generatingAudio}
+              className="flex items-center gap-2"
+            >
+              <Volume2 className="h-4 w-4" />
+              {generatingAudio ? "Generating Audio..." : "Generate Audio Narration"}
+            </Button>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between gap-3 border-t pt-6">
         <Button 
           variant="outline" 
           onClick={handleDownloadAudio}
           className="flex items-center gap-2"
-          disabled={!isDemoStory && !isAudioLoaded}
+          disabled={!story.audioUrl || (!isDemoStory && !isAudioLoaded)}
         >
           <Download className="h-4 w-4" />
           Download Audio

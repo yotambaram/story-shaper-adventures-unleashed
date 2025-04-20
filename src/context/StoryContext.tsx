@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "./AuthContext";
@@ -87,13 +86,25 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
       throw new Error("User not authenticated");
     }
 
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    
+    if (!apiKey) {
       toast({
         title: "Configuration Error",
-        description: "OpenAI API key is not configured. Please add it to your environment variables.",
+        description: "OpenAI API key is not configured. Please check your environment variables.",
         variant: "destructive"
       });
-      throw new Error("OpenAI API key not configured");
+      
+      const mockStory = await generateMockStory(storyParams, user.id);
+      setStories(prevStories => [mockStory, ...prevStories]);
+      setCurrentStory(mockStory);
+      
+      toast({
+        title: "Demo Mode",
+        description: "Using a mock story since the API key is not configured.",
+      });
+      
+      return mockStory;
     }
 
     setIsGenerating(true);
@@ -102,7 +113,7 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+          "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: "gpt-4o",
@@ -131,7 +142,7 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
         userId: user.id,
         ...storyParams,
         storyText: generatedStoryText,
-        audioUrl: "", // We'll implement audio generation later
+        audioUrl: "", // We'll implement audio generation separately
         createdAt: new Date(),
         title: `Story about ${storyParams.topic}`
       };
@@ -156,6 +167,35 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const generateMockStory = async (
+    storyParams: Omit<Story, "id" | "userId" | "storyText" | "audioUrl" | "createdAt">,
+    userId: string
+  ): Promise<Story> => {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    let generatedStoryText = `Once upon a time, there was a story about ${storyParams.topic}. `;
+    
+    if (storyParams.goal === "bedtime") {
+      generatedStoryText += "The stars twinkled softly in the night sky as the characters drifted into a peaceful sleep. ";
+    } else if (storyParams.goal === "learning") {
+      generatedStoryText += "The characters learned many interesting facts and grew wiser with each new discovery. ";
+    } else {
+      generatedStoryText += "The characters had an exciting adventure full of twists and turns. ";
+    }
+    
+    generatedStoryText += `This story was created for a ${storyParams.age} year old child and is meant to last about ${storyParams.duration}.`;
+
+    return {
+      id: `story_${Date.now()}`,
+      userId: userId,
+      ...storyParams,
+      storyText: generatedStoryText,
+      audioUrl: "", // Empty string since audio hasn't been generated yet
+      createdAt: new Date(),
+      title: `Story about ${storyParams.topic}`
+    };
   };
 
   const getStoryById = (id: string) => {
