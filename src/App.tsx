@@ -28,6 +28,10 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
+              <Route path="/landing" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              
+              {/* Protected Routes */}
               <Route 
                 path="/" 
                 element={
@@ -36,10 +40,6 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              <Route path="/login" element={<Login />} />
-              <Route path="/landing" element={<Landing />} />
-              
-              {/* Protected Routes */}
               <Route 
                 path="/create" 
                 element={
