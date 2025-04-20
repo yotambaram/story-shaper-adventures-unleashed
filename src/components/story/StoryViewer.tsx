@@ -64,7 +64,7 @@ export default function StoryViewer() {
         if (error.message.includes("API key")) {
           errorMessage = "API key not configured. Please check your environment settings.";
         } else if (error.message.includes("Rate limit")) {
-          errorMessage = "API rate limit exceeded. Please try again later.";
+          errorMessage = "OpenAI API rate limit exceeded. You may have reached your usage quota or free tier limit. Please check your OpenAI account.";
         }
       }
       

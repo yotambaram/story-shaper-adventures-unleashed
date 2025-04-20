@@ -58,7 +58,8 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
       if (response.status === 401) {
         throw new Error("Authentication failed: Please check your API key");
       } else if (response.status === 429) {
-        throw new Error("Rate limit exceeded: Too many requests or insufficient quota");
+        console.error("Rate limit details:", errorData);
+        throw new Error("Rate limit exceeded: Your OpenAI account has reached its usage limit. Please check your OpenAI account billing and limits.");
       } else if (response.status >= 500) {
         throw new Error("OpenAI server error: Please try again later");
       } else {
