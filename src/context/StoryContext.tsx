@@ -1,4 +1,3 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "./AuthContext";
@@ -87,58 +86,10 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
       throw new Error("User not authenticated");
     }
 
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    
-    if (!apiKey) {
-      toast({
-        title: "Configuration Error",
-        description: "OpenAI API key is not configured. Please check your environment variables.",
-        variant: "destructive"
-      });
-      
-      const mockStory = await generateMockStory(storyParams, user.id);
-      setStories(prevStories => [mockStory, ...prevStories]);
-      setCurrentStory(mockStory);
-      
-      toast({
-        title: "Demo Mode",
-        description: "Using a mock story since the API key is not configured.",
-      });
-      
-      return mockStory;
-    }
-
     setIsGenerating(true);
     try {
-      // Generate story content using OpenAI API
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: `You are a creative storyteller for children. Create a ${storyParams.duration} story about ${storyParams.topic} suitable for a ${storyParams.age} year old child. The story should be ${storyParams.goal === "bedtime" ? "calming and suitable for bedtime" : storyParams.goal === "learning" ? "educational and engaging" : "entertaining and engaging"}. Write in ${storyParams.language === "en" ? "English" : storyParams.language === "he" ? "Hebrew" : "Spanish"}.`
-            },
-            {
-              role: "user",
-              content: `Generate a story about ${storyParams.topic}`
-            }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate story");
-      }
-
-      const data = await response.json();
-      const generatedStoryText = data.choices[0].message.content;
-
+      const generatedStoryText = generateMockStoryText(storyParams);
+      
       const newStory: Story = {
         id: `story_${Date.now()}`,
         userId: user.id,
@@ -171,33 +122,22 @@ export const StoryProvider = ({ children }: StoryProviderProps) => {
     }
   };
 
-  const generateMockStory = async (
-    storyParams: Omit<Story, "id" | "userId" | "storyText" | "audioUrl" | "createdAt">,
-    userId: string
-  ): Promise<Story> => {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    let generatedStoryText = `Once upon a time, there was a story about ${storyParams.topic}. `;
+  const generateMockStoryText = (storyParams: Omit<Story, "id" | "userId" | "storyText" | "audioUrl" | "createdAt">) => {
+    let storyText = `Once upon a time, there was a wonderful story about ${storyParams.topic}. `;
     
     if (storyParams.goal === "bedtime") {
-      generatedStoryText += "The stars twinkled softly in the night sky as the characters drifted into a peaceful sleep. ";
+      storyText += "As the stars twinkled softly in the night sky, our characters embarked on a gentle, soothing adventure. ";
     } else if (storyParams.goal === "learning") {
-      generatedStoryText += "The characters learned many interesting facts and grew wiser with each new discovery. ";
+      storyText += "Through exciting discoveries and fascinating experiences, our characters learned valuable lessons about the world around them. ";
     } else {
-      generatedStoryText += "The characters had an exciting adventure full of twists and turns. ";
+      storyText += "With excitement and wonder, our characters set out on an unforgettable journey filled with surprises. ";
     }
     
-    generatedStoryText += `This story was created for a ${storyParams.age} year old child and is meant to last about ${storyParams.duration}.`;
-
-    return {
-      id: `story_${Date.now()}`,
-      userId: userId,
-      ...storyParams,
-      storyText: generatedStoryText,
-      audioUrl: "", // Empty string since audio will be generated with ElevenLabs later
-      createdAt: new Date(),
-      title: `Story about ${storyParams.topic}`
-    };
+    storyText += `This enchanting tale, perfect for ${storyParams.age} year olds, unfolds over ${storyParams.duration} of magical storytelling. `;
+    storyText += "The characters learned that friendship, courage, and kindness could overcome any challenge. ";
+    storyText += "And so, with hearts full of joy and minds full of wonder, they lived happily ever after.";
+    
+    return storyText;
   };
 
   const getStoryById = (id: string) => {
