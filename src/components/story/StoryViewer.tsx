@@ -57,9 +57,20 @@ export default function StoryViewer() {
       }
     } catch (error) {
       console.error("Failed to generate audio:", error);
+      let errorMessage = "We couldn't generate audio for this story. Please try again later.";
+      
+      // Check for specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes("API key")) {
+          errorMessage = "API key not configured. Please check your environment settings.";
+        } else if (error.message.includes("Rate limit")) {
+          errorMessage = "API rate limit exceeded. Please try again later.";
+        }
+      }
+      
       toast({
         title: "Audio Generation Failed",
-        description: "We couldn't generate audio for this story. Please try again later.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

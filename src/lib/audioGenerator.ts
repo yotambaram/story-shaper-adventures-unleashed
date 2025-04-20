@@ -17,7 +17,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     
     if (isProduction) {
       console.log("Production environment detected without API key");
-      return null; // Return null in production when no key is available
+      throw new Error("API key not configured. Please set up your VITE_OPENAI_API_KEY in environment variables.");
     } else {
       console.log("Using demo mode with mock audio URL for local development");
       // Return demo URL for testing without API key in development only
@@ -34,6 +34,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
   try {
     console.log(`Generating audio with voice: ${voiceStyle}`);
     console.log(`Text length: ${limitedText.length} characters`);
+    console.log(`Using voice ID: ${voice}`);
     
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
@@ -50,8 +51,19 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to generate audio (${response.status}): ${errorText}`);
+      const errorData = await response.text();
+      console.error("OpenAI API error:", response.status, errorData);
+      
+      // Provide more detailed error messages based on status codes
+      if (response.status === 401) {
+        throw new Error("Authentication failed: Please check your API key");
+      } else if (response.status === 429) {
+        throw new Error("Rate limit exceeded: Too many requests or insufficient quota");
+      } else if (response.status >= 500) {
+        throw new Error("OpenAI server error: Please try again later");
+      } else {
+        throw new Error(`Failed to generate audio (${response.status}): ${errorData}`);
+      }
     }
 
     // Convert the response to a Blob and create a URL
@@ -59,6 +71,7 @@ export async function generateAudio(text: string, voiceStyle: string): Promise<s
     return URL.createObjectURL(audioBlob);
   } catch (error) {
     console.error("Error generating audio:", error);
-    return null;
+    // Re-throw the error so it can be handled by the calling component
+    throw error;
   }
 }
