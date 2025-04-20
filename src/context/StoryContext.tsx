@@ -1,8 +1,9 @@
+
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "./AuthContext";
 
-type Story = {
+export type Story = {
   id: string;
   userId: string;
   topic: string;
