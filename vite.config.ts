@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  base: "./",
+  base: "/story-shaper-adventures-unleashed/",
   plugins: [
     react(),
     mode === 'development' &&
