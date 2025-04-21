@@ -14,7 +14,8 @@ const Index = () => {
     console.log("Base URL:", baseUrl);
     
     // Navigate to the landing page with the correct base path
-    navigate("/landing");
+    // Remove leading slash to avoid double slashes with baseUrl
+    navigate("landing");
   }, [navigate]);
 
   return (

@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { StoryProvider } from "./context/StoryContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -73,6 +73,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 
 // Get the base URL from Vite configuration
 const baseUrl = import.meta.env.BASE_URL || '/';
+console.log("Base URL in App:", baseUrl);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,7 +86,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <ErrorBoundary>
-    <BrowserRouter basename={baseUrl}>
+    <HashRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <StoryProvider>
@@ -94,7 +95,7 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <Routes>
-                  <Route path="/" element={<Landing />} />
+                  <Route path="/" element={<Index />} />
                   <Route path="/index" element={<Index />} />
                   <Route path="/landing" element={<Landing />} />
                   <Route path="/login" element={<Login />} />
@@ -133,7 +134,7 @@ const App = () => (
           </StoryProvider>
         </AuthProvider>
       </QueryClientProvider>
-    </BrowserRouter>
+    </HashRouter>
   </ErrorBoundary>
 );
 
