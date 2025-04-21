@@ -6,16 +6,20 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get the base URL from Vite configuration
-    const baseUrl = import.meta.env.BASE_URL || '/';
-    
-    // Add console log to track this component rendering and base URL
-    console.log("Index component rendered, redirecting to landing page");
-    console.log("Base URL:", baseUrl);
-    
-    // Navigate to the landing page with the correct base path
-    // Remove leading slash to avoid double slashes with baseUrl
-    navigate("landing");
+    try {
+      // Get the base URL from Vite configuration
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      
+      // Add console log to track this component rendering and base URL
+      console.log("Index component rendered, redirecting to landing page");
+      console.log("Base URL:", baseUrl);
+      
+      // Navigate to the landing page without using leading slash
+      // to ensure compatibility with HashRouter
+      navigate("landing", { replace: true });
+    } catch (error) {
+      console.error("Navigation error:", error);
+    }
   }, [navigate]);
 
   return (
