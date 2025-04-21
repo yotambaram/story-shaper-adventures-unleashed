@@ -1,4 +1,3 @@
-
 import React, { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -96,7 +95,7 @@ const App = () => (
                 <Sonner />
                 <Routes>
                   <Route path="/" element={<Index />} />
-                  <Route path="/index" element={<Index />} />
+                  {/* Remove the /index route */}
                   <Route path="/landing" element={<Landing />} />
                   <Route path="/login" element={<Login />} />
                   
