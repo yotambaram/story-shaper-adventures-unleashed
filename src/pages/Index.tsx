@@ -1,20 +1,28 @@
 
-import React from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAuthenticated) {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/landing", { replace: true });
+      }
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  // Show a spinner while determining auth state
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-6">Welcome to Story Shaper - Adventures Unleashed!</h1>
-        <p className="text-lg mb-4">
-          This is the home page of the application. Navigate to the landing page or other sections using the menu.
-        </p>
-        <a
-          href="#/landing"
-          className="inline-block mt-4 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Go to Landing Page
-        </a>
+        <h1 className="text-xl font-bold mb-4">Loading...</h1>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto"></div>
       </div>
     </div>
   );
