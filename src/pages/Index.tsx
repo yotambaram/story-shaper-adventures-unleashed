@@ -6,8 +6,14 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Add console log to track this component rendering
+    // Get the base URL from Vite configuration
+    const baseUrl = import.meta.env.BASE_URL || '/';
+    
+    // Add console log to track this component rendering and base URL
     console.log("Index component rendered, redirecting to landing page");
+    console.log("Base URL:", baseUrl);
+    
+    // Navigate to the landing page with the correct base path
     navigate("/landing");
   }, [navigate]);
 
